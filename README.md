@@ -1,5 +1,5 @@
 https://mohammed-farhad-uddin.github.io/hard-rock-master/
-# hard-rock-solution
+# hard-rock-API
 ### Search Song
 api link: https://api.lyrics.ovh/suggest/:searchText
 
