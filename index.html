@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Hard Rock Solution - Song Lyric App</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <!-- Custom css -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <nav class="navbar  navbar-dark my-3">
+            <a class="navbar-brand" href="#">
+                <img src="images/logo.png" alt="Hard Rock Solution">
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavId"
+                aria-controls="collapsibleNavId" aria-expanded="false" aria-label="Toggle navigation">
+                <img src="images/toggler-icon.svg" alt="">
+            </button>
+            <div class="collapse navbar-collapse" id="collapsibleNavId">
+                <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Link</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="dropdownId" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">Dropdown</a>
+                        <div class="dropdown-menu" aria-labelledby="dropdownId">
+                            <a class="dropdown-item" href="#">Action 1</a>
+                            <a class="dropdown-item" href="#">Action 2</a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <main class="content-area">
+            <div class="search-bar col-md-6 mx-auto">
+                <h1 class="text-center">Hard Rock Lyric Search</h1>
+                <div class="search-box my-5">
+                    <input id="search-value" type="text" class="form-control" placeholder="Enter your artist song name">
+                    <button id="search" class="btn btn-success search-btn">Search</button>
+                </div>
+            </div>
+            <!-- Single Lyrics -->
+            <div class="single-lyrics text-center">
+
+            </div>
+            <div class="search-result col-md-8 mx-auto py-4">
+                <div class="single-result row align-items-center my-3 p-3">
+                    <div class="col-md-9">
+                        <h3 class="lyrics-name">Purple Noon</h3>
+                        <p class="author lead">Album by <span>Washed Out</span></p>
+                    </div>
+                    <div class="col-md-3 text-md-right text-center">
+                        <button class="btn btn-success">Get Lyrics</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <!-- Optional JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+
+    <!-- Custom Script Here -->
+    <script>
+        document.getElementById("search").addEventListener("click",function(event){
+            event.preventDefault();
+            const searchValue=document.getElementById("search-value").value;
+            document.getElementById("search-value").value='';
+            // console.log(searchValue);
+
+            ////ei vabeo fetch ta use kora jabe niche arekta ace oi tao use kora jabe
+            fetch(`https://deezerdevs-deezer.p.rapidapi.com/search?q=${searchValue}`, {
+                        "method": "GET",
+                        "headers": {
+                            "x-rapidapi-key": "6b16b0d3bemshc23d50ca0c04dbbp135a19jsn43386888765f",
+                            "x-rapidapi-host": "deezerdevs-deezer.p.rapidapi.com"
+                        }
+                    })
+
+            /////ei fetch tao use kora jabe
+            // fetch(`https://api.lyrics.ovh/suggest/${searchValue}`)
+
+            .then(res=>res.json())
+            .then(data=>{
+                let songData=data.data;
+                songData=songData.slice(0,10);///first 10 ta array show korbe ei ta korle.total array tekhe
+                const list=document.querySelector(".search-result");
+                list.innerHTML='';
+                for(let i=0;i<songData.length;i++){
+                    const song=songData[i];
+                    const songId=song.id;
+                    const songTitle=song.title;
+                    const artistName=song.artist.name;
+                    // console.log(artistName);
+                    // console.log(songTitle);
+                    ///////////
+                    list.innerHTML +=`<div class="single-lyrics text-center">
+                                    </div>
+                                    <div class="search-result col-md-8 mx-auto py-4">
+                                     <div class="single-result row align-items-center my-3 p-3">
+                                        <div class="col-md-9">
+                                            <h3 id="title-${songTitle}" class="lyrics-name">${songTitle}</h3>
+                                            <p class="author lead">Album by <span>${artistName}</span></p>
+                                        </div>
+                                        <div id="text-lyrics" class="col-md-3 text-md-right text-center">
+                                            <button onclick="getLyrics('${artistName}','${songTitle}')" class="btn btn-success">Get Lyrics</button>
+                                        </div>
+                                      </div>`                   
+                }                         
+            });
+        });
+        function getLyrics(artistName,songTitle){   
+            try {
+                fetch(`https://api.lyrics.ovh/v1/${artistName}/${songTitle}`)
+                .then(respon=>respon.json())
+                .then(data=>{
+                const lynics=data.lyrics;
+                // console.log(data);
+                // const textLyrics=document.getElementById("text-lyrics");
+                // const p=document.createElement("p");
+                // p.innerHTML=lynics;
+                // textLyrics.appendChild(p);
+                // console.log(p)
+                const singleLynics=document.querySelector(".single-lyrics");
+                singleLynics.innerText=lynics;
+                console.log(singleLynics.innerText);    
+            })
+            } catch (error) {
+                console.log(error);
+            }
+        }
+    </script>
+</body>
+</html>
